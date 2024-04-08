@@ -8,7 +8,7 @@ Char_t linha[10000];
 
     int number_of_lines = 0;
     std::string line;
-    std::ifstream myfile("proton/DAT4011514_tratado");
+    std::ifstream myfile("iron/DAT4561514_tratado");
 
     while (std::getline(myfile, line))
         ++number_of_lines;
@@ -16,7 +16,7 @@ Char_t linha[10000];
     //return 0;
 
 
-FILE *fp1 = fopen("proton/DAT4011514_tratado","r");
+FILE *fp1 = fopen("iron/DAT4561514_tratado","r");
 
 Int_t nlines=0;
 Float_t part,x_p, y_p, r_p, w,d_r_p;
@@ -31,7 +31,7 @@ c1 = new TCanvas("c1","Histograma unidimensional",10,10,700,700);
 
 //c1->SetLogx(1);
 
-hpx= new TH1F("hpx","Primary proton 4.64E15 eV",100,0,1000);
+hpx= new TH1F("hpx","Primary iron 4.64E15 eV",100,0,1000);
 
 while (nlines<number_of_lines) {
 	int ch;
@@ -53,9 +53,16 @@ hpx->GetXaxis()->SetTitle("(cm)");
 //c1->SetLogx();
 hpx->Draw();
 
-rho_sum = hpx->Integral(0,100);
+rho_sum = hpx->Integral(0,101);
 
 cout << "Densidade de partículas: " << rho_sum << endl;
+
+bin_346 = hpx->GetXaxis()->FindBin(346);
+cout << "Número do Bin em 346 cm: " << bin_346 << endl;
+
+rho_346 = hpx->Integral(35,35);
+
+cout << "Densidade de partículas em 346 cm: " << rho_346 << endl;
 
 // Lateral distribution function - Nishimura-Kamata-Greisen (NKG)
 //*TMath::Exp([4]*TMath::Log(1+0.35*(x/[3])))
