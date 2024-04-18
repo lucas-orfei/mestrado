@@ -10,6 +10,7 @@
 
 FILE *inputfile;
 FILE *outputfile;		
+FILE *outputfile2;		
 
 float pi=3.141592653589;
 float rad2deg=180/pi;
@@ -17,25 +18,29 @@ float rad2deg=180/pi;
 char line[500];
 char ch;
 char str_file_in[1000];
-char str_file_out[50];
+char str_file_out[1000];
+char str_file_out2[1000];
 char str1[4],str2[2];
-char trig1[100000],trig2[100000],trig3[100000];
+char trig1[10000],trig2[10000],trig3[10000];
 
 float nrun,date,version;
 float E0,E1,Ef,slope,nlevels,alt[10],primary,z,theta,phi;
 float part,px,py,pz,x,y,t;
+float rpart;
 float nev,nshowers,nphotons,nelectrons,nhadrons,nmuons,ntotal;
 
 int iev=0,idpart,iphotons,ielectrons,ihadrons,imuons;
 float xdet1=0,ydet1=346,zdet1=0,r1,rdet=65;
 float xdet2=-400,ydet2=-346,zdet2=0,r2;
 float xdet3=400,ydet3=-346,zdet3=0,r3;
+float ndet1=0,ndet2=0,ndet3=0;
 
 int main()
 {
     
-    strcpy(str_file_in,"/home/orfei/mestrado/progs/corsika/corsika-76900/run/dat/DAT4561512");
-    strcpy(str_file_out,"iron2.15E15");
+    strcpy(str_file_in,"/home/orfei/mestrado/progs/corsika/corsika-76900/run/dat/DAT4561514");
+    strcpy(str_file_out,"/home/orfei/mestrado/progs/3_detectores/data/iron/iron4.64E15");
+    strcpy(str_file_out2,"/home/orfei/mestrado/progs/lateral_distribution/data/iron/DAT4561514_tratado");
 
 inputfile=fopen(str_file_in,"r");
 if (inputfile==NULL) {
@@ -46,6 +51,12 @@ outputfile=fopen(str_file_out,"w");
 if (outputfile==NULL) {
   (void)printf("Can't open outputfile %s\n",str_file_out);
   return 0;}
+
+outputfile2=fopen(str_file_out2,"w");
+if (outputfile==NULL) {
+  (void)printf("Can't open outputfile2 %s\n",str_file_out);
+  return 0;}
+
 
 (void)fprintf(outputfile,"# %s\n",str_file_in);
 
@@ -108,6 +119,7 @@ while (1){
 	  //}else{
 	      (void)sscanf(line,"%f %f %f %f %f %f",&part,&px,&py,&pz,&x,&y,&t);
 	      idpart=int(part/1000);
+	      
 	      if(idpart<70){
 		//		(void)printf("%d ",idpart);
 		if (idpart==1) iphotons+=1;
@@ -118,9 +130,13 @@ while (1){
 		r2=sqrt((x-xdet2)*(x-xdet2)+(y-ydet2)*(y-ydet2));
 		r3=sqrt((x-xdet3)*(x-xdet3)+(y-ydet3)*(y-ydet3));
 
-		if (idpart<=6){
+		if ((idpart >=2) && (idpart<=6)){
+		rpart=sqrt(x*x+y*y);
+		
+		(void)fprintf(outputfile2,"%d %.3f %.3f %.3f\n",idpart,x,y,rpart);
 		
 		if (r1<=rdet) {
+			ndet1++;
 		  //(void)printf("trigger!\n");
 		  strcat(trig1," ");
 		  //itoa(idpart,str2,10);
@@ -130,6 +146,7 @@ while (1){
 		  //(void)fprintf(outputfile," %d",idpart);
 		}
 		if (r2<=rdet) {
+			ndet2++;
 		  //(void)printf("trigger!\n");
 		  strcat(trig2," ");
 		  //itoa(idpart,str2,10);
@@ -137,7 +154,9 @@ while (1){
   		  //sprintf(str2, "%d", idpart);
 		  strcat(trig2,str2);
 		  //(void)fprintf(outputfile," %d",idpart);
-		}if (r3<=rdet) {
+		}
+		if (r3<=rdet) {
+			ndet3++;
 		  //(void)printf("trigger!\n");
 		  strcat(trig3," ");
 		  //itoa(idpart,str2,10);
@@ -174,12 +193,14 @@ while (1){
 	(void)sscanf(line,"%f %f",&nrun,&nshowers);
         (void)printf("End of run %.0f, nshowers=%.0f\n",nev,nshowers);
         (void)fprintf(outputfile," %.0f %.0f\n",nev,nshowers);
+        (void)printf("Average number of particles in each tank=%.3f %.3f %.3f\n",ndet1/100,ndet2/100,ndet3/100); 
   }
 
  }//end while
 
 (void)fclose(inputfile);
 (void)fclose(outputfile);
+(void)fclose(outputfile2);
 
 return 0;
 }
