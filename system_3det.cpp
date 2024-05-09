@@ -66,7 +66,7 @@ gr->GetXaxis()->CenterTitle();
 
 TF1 *f = new TF1("fit", "([0]/([3]*[3]))*TMath::Exp(-[1]*TMath::Log(x/[3]))*TMath::Exp(-[2]*TMath::Log(1+(x/[3])))",0,1000000);
 	
-	f->SetParameters(1,0.5,0.5,5);
+	f->SetParameters(300,1,0.5,1);
 	//f->FixParameter(0,0.0006);
 	//f->FixParameter(1,0.88);
 	//f->FixParameter(2,1);
