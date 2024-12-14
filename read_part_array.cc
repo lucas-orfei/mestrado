@@ -7,7 +7,7 @@
 
 FILE *inputfile;
 FILE *outputfile;
-//FILE *outputfile2;
+FILE *outputfile2;
 
 float pi=3.141592653589;
 float rad2deg=180/pi;
@@ -34,17 +34,19 @@ const double area = 1.0;
 double x_det[numDetectors];
 double y_det[numDetectors];
 double areas[numDetectors];
-char trig[numDetectors];
 
 double halfSize = std::sqrt(area) / 2.0;
-int particleCount[numDetectors] = {0};
+int positronCount[numDetectors] = {0};
+int electronCount[numDetectors] = {0};
+int muonPlusCount[numDetectors] = {0};
+int muonMinusCount[numDetectors] = {0};
 
 int main()
 {
     // Leitura dos dados e local de saída dos arquivos
-    strcpy(str_file_in, "/home/orfei/mestrado/progs/corsika/corsika-76900/run/dat/DAT400141");
-    strcpy(str_file_out, "/home/orfei/mestrado/progs/array_10x10/photon1E14_array");
-    //strcpy(str_file_out2, "/home/orfei/mestrado/progs/lateral_distribution/data/iron/DAT4561514_tratado");
+    strcpy(str_file_in, "./OUT400141");
+    strcpy(str_file_out, "./tratados_10x10det/photon/photon1E14_array");
+    //strcpy(str_file_out2, "./data/iron/DAT4561514_tratado");
 
     inputfile = fopen(str_file_in, "r");
     if (inputfile == NULL) {
@@ -58,24 +60,26 @@ int main()
         return 0;
     }
 
-    //outputfile2 = fopen(str_file_out2, "w");
-    //if (outputfile2 == NULL) {
-    //    printf("Can't open outputfile2 %s\n", str_file_out);
-    //    return 0;
-    //}
+//    outputfile2 = fopen(str_file_out2, "w");
+//    if (outputfile2 == NULL) {
+//        printf("Can't open outputfile2 %s\n", str_file_out);
+//        return 0;
+//    }
 
     (void)fprintf(outputfile, "# %s\n", str_file_in);
 
     // Criação das posições dos tanques
     int index = 0;
-    for (int i = 0; i < gridSize; ++i) {
-        for (int j = 0; j < gridSize; ++j) {
-            x_det[index] = j * spacing;
-            y_det[index] = i * spacing;
-            areas[index] = area;
-            ++index;
-        }
-    }
+    int halfGridSize = gridSize / 2;
+
+	for (int i = 0; i < gridSize; ++i) {
+	    for (int j = 0; j < gridSize; ++j) {
+        	x_det[index] = (j - halfGridSize + 0.5) * spacing;
+        	y_det[index] = (i - halfGridSize + 0.5) * spacing;
+        	areas[index] = area;
+        	++index;
+    		}
+	}
 
     while (1) {
         ch = fgetc(inputfile);
@@ -135,36 +139,36 @@ int main()
                     if ((idpart == 5) || (idpart == 6)) imuons += 1;
                     if ((idpart > 6) && (idpart < 66)) ihadrons += 1;
 
-                    if ((idpart >= 2) && (idpart <= 3)) {
+                    if ((idpart >= 2) && (idpart <= 6)) {
                         rpart = sqrt(x * x + y * y);
-                        //fprintf(outputfile2, "%d %.3f %.3f %.3f\n", idpart, x, y, rpart);
+                        fprintf(outputfile2, "%d %.3f %.3f %.3f\n", idpart, x, y, rpart);
 
                         // Conta quantas partículas têm em cada tanque
                         for (int i = 0; i < numDetectors; ++i) {
                             if (x/100 >= x_det[i] - halfSize && x/100 <= x_det[i] + halfSize &&
                                 y/100 >= y_det[i] - halfSize && y/100 <= y_det[i] + halfSize) {
-                                particleCount[i]++;
-                            }
-                            else {
-                            	particleCount[i] == 0;
+                                if (idpart == 2) positronCount[i]++;
+                                if (idpart == 3) electronCount[i]++;
+                                if (idpart == 5) muonPlusCount[i]++;
+                                if (idpart == 6) muonMinusCount[i]++;
                             }
                         }
                     }
                 }
             }
                 // Print dos TRIGS
-    for (int i = 0; i < numDetectors; ++i) {
-        	
-           (void)printf("TRIG%d %d\n", i + 1, particleCount[i]);	
-           (void)fprintf(outputfile, "TRIG%d %d\n", i + 1, particleCount[i]);
-        	      	
-   	}
-    // Reset dos TRIGS   
-     for (int i = 0; i < numDetectors; ++i) {
- 	   particleCount[i] = 0; 
-	}
+            for (int i = 0; i < numDetectors; ++i) {
+                (void)printf("TRIG%d %d %d %d %d\n", i + 1, positronCount[i], electronCount[i], muonPlusCount[i], muonMinusCount[i]);    
+                (void)fprintf(outputfile, "TRIG%d %d %d %d %d\n", i + 1, positronCount[i], electronCount[i], muonPlusCount[i], muonMinusCount[i]);
+            }
+            // Reset dos TRIGS   
+            for (int i = 0; i < numDetectors; ++i) {
+                positronCount[i] = 0; 
+                electronCount[i] = 0;
+                muonPlusCount[i] = 0;
+                muonMinusCount[i] = 0;
+            }
         }
-
 
         if (strcmp(str1, "EVTE") == 0) {
             (void)fgets(line, sizeof(line), inputfile);
@@ -192,4 +196,3 @@ int main()
 
     return 0;
 }
-
