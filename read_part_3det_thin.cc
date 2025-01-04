@@ -29,7 +29,7 @@ char trig1[10000], trig2[10000], trig3[10000];
 // Variáveis para parâmetros gerais
 float nrun, date, version;
 float E0, E1, Ef, slope, nlevels, alt[10], primary, z, theta, phi;
-float part, px, py, pz, x, y, t;
+float part, px, py, pz, x, y, t, th;
 float rpart;
 float nev, nshowers, nphotons, nelectrons, nhadrons, nmuons, ntotal;
 
@@ -111,7 +111,7 @@ int main()
                 
                 if (strcmp(str1, "EVTE") == 0) break;
                 
-                (void)sscanf(line, "%f %f %f %f %f %f %f", &part, &px, &py, &pz, &x, &y, &t);
+                (void)sscanf(line, "%f %f %f %f %f %f %f %f", &part, &px, &py, &pz, &x, &y, &t, &th);
                 idpart = int(part / 1000);
 
                 // Verifica se a partícula está no intervalo de interesse
@@ -121,30 +121,30 @@ int main()
                     r3 = sqrt((x - xdet3) * (x - xdet3) + (y - ydet3) * (y - ydet3));
                     rpart = sqrt(x * x + y * y);
 
-					(void)fprintf(outputfile2,"%d %.3f %.3f %.3f %.3f\n",idpart,x,y,rpart);
+		            (void)fprintf(outputfile2,"%d %.3f %.3f %.3f %.3f\n",idpart,x,y,rpart,th);
 
                     // Atualiza os contadores do detector 1
                     if (r1 <= rdet) {
-                        if (idpart == 2) ndet1_pos++;
-                        if (idpart == 3) ndet1_ele++;
-                        if (idpart == 5) ndet1_muplus++;
-                        if (idpart == 6) ndet1_muminus++;
+                        if (idpart == 2) ndet1_pos+=th;
+                        if (idpart == 3) ndet1_ele+=th;
+                        if (idpart == 5) ndet1_muplus+=th;
+                        if (idpart == 6) ndet1_muminus+=th;
                     }
 
                     // Atualiza os contadores do detector 2
                     if (r2 <= rdet) {
-                        if (idpart == 2) ndet2_pos++;
-                        if (idpart == 3) ndet2_ele++;
-                        if (idpart == 5) ndet2_muplus++;
-                        if (idpart == 6) ndet2_muminus++;
+                        if (idpart == 2) ndet2_pos+=th;
+                        if (idpart == 3) ndet2_ele+=th;
+                        if (idpart == 5) ndet2_muplus+=th;
+                        if (idpart == 6) ndet2_muminus+=th;
                     }
 
                     // Atualiza os contadores do detector 3
                     if (r3 <= rdet) {
-                        if (idpart == 2) ndet3_pos++;
-                        if (idpart == 3) ndet3_ele++;
-                        if (idpart == 5) ndet3_muplus++;
-                        if (idpart == 6) ndet3_muminus++;
+                        if (idpart == 2) ndet3_pos+=th;
+                        if (idpart == 3) ndet3_ele+=th;
+                        if (idpart == 5) ndet3_muplus+=th;
+                        if (idpart == 6) ndet3_muminus+=th;
                     }
                 }
             }
