@@ -9,7 +9,7 @@ Char_t linha[10000];
 
     int number_of_lines = 0;
     std::string line;
-    std::ifstream myfile("OUT400151_tratado");
+    std::ifstream myfile("./photon/OUT400151_tratado");
 
     while (std::getline(myfile, line))
         ++number_of_lines;
@@ -17,10 +17,10 @@ Char_t linha[10000];
     //return 0;
 
 
-FILE *fp1 = fopen("OUT400151_tratado","r");
+FILE *fp1 = fopen("./photon/OUT400151_tratado","r");
 
 Int_t nlines=0,npart=0;
-Float_t part,x_p, y_p, r_p,w,d_r_p;
+Float_t eas,part,x_p, y_p, r_p,w,d_r_p;
 
 //Float_t xdet1=0,ydet1=346;
 //Float_t xdet2=-400,ydet2=-346;
@@ -28,9 +28,8 @@ Float_t part,x_p, y_p, r_p,w,d_r_p;
 
 Float_t r1,r2,r3,rdet=65;
 
-//num_lin = 20976079;
 //sqrt_lin = TMath::Sqrt(number_of_lines);
-d_r_p = 2*rdet;
+d_r_p = 10; //largura do bin
 //r_0 = 78;
 
 
@@ -56,15 +55,13 @@ while (nlines<number_of_lines) {
 	ungetc(ch,fp1);
 	fgets(linha,sizeof(linha),fp1);
 
-     (void)sscanf(linha,"%f" "%f" "%f" "%f" , &part, &x_p, &y_p ,&r_p);
+     (void)sscanf(linha,"%f" "%f" "%f" "%f" "%f" , &eas, &part, &x_p, &y_p ,&r_p);
+     	 if (r_p <= 1000){
          //cout << r_p << endl;
-		 if (r_p <= 1000){
-			w = 1/(1000*2*TMath::Pi()*r_p*d_r_p);
-			//cout << TMath::Pi() << " " << r_p << " " << part << " "<< d_r_p << " " << w << endl;
-		    hpx->Fill(r_p,w);
-		 }
-         
-    
+	         w = 1/(1000*2*TMath::Pi()*r_p*d_r_p);
+         //cout << TMath::Pi() << " " << r_p << " " << part << " "<< d_r_p << " " << w << endl;
+    		 hpx->Fill(r_p,w);
+    	}
 		//r1=sqrt((x_p-xdet1)*(x_p-xdet1)+(y_p-ydet1)*(y_p-ydet1));
 		//r2=sqrt((x_p-xdet2)*(x_p-xdet2)+(y_p-ydet2)*(y_p-ydet2));
 		//r3=sqrt((x_p-xdet3)*(x_p-xdet3)+(y_p-ydet3)*(y_p-ydet3));
@@ -85,6 +82,17 @@ hpx->GetXaxis()->SetTitle("r (cm)");
 //c1->SetLogx();
 hpx->Draw();
 
+Double_t integral = 0.0;
+Double_t delta_r = hpx->GetBinWidth(1);
+
+for (Int_t i = 1; i <= hpx->GetNbinsX(); i++) {
+	    Double_t r = hpx->GetBinCenter(i);
+	        Double_t rho = hpx->GetBinContent(i); // Densidade no bin i
+		    Double_t area = 2 *1000*TMath::Pi()*r*delta_r; // Área do anel
+		        integral += rho*area;
+}
+
+std::cout << "Número médio de partículas: " << integral << std::endl;
 
 
 // Função com C, a, b e d
@@ -127,7 +135,7 @@ TF1 *f = new TF1("fit", "([0]/([2]*[2]))*TMath::Exp(([1])*TMath::Log(x/[2]))",0,
 	//f->FixParameter(0,0.0006);
 	//f->FixParameter(1,0.88);
 	f->SetParLimits(1,-1,2);
-	f->FixParameter(2,7800);
+        f->FixParameter(2,7800);
 	f->SetParNames("C","s","r0");
 	hpx->Fit("fit");
 
@@ -142,7 +150,7 @@ TF1 *f = new TF1("fit", "([0]/([2]*[2]))*TMath::Exp(([1])*TMath::Log(x/[2]))",0,
 
 //  c2->Update();
 //  h2d->Draw();
-c1->SaveAs("photon1E14_3det.pdf");
+c1->SaveAs("photon1E15_3det.pdf");
 }
 
 
