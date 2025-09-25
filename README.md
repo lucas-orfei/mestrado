@@ -46,6 +46,6 @@ Com o arquivo 'OUT401141_tratado' é possível construir perfis laterais e ajust
 
 Esses notebooks têm todas as análises dos chuveiros e reconstruções das energias do primário e dos ângulos de entrada.
 
-## 5 - neural_networks.ipynb
+## 5 - NN.ipynb
 
-Esses notebooks têm as reconstruções dos chuveiros utilizando redes neurais.
+Esses notebooks têm as reconstruções dos chuveiros utilizando redes neurais. O arquivo que gera os dados para estarem no padrão de 'NN.ipynb' está nomeado como 'data_NN.ipynb'.
